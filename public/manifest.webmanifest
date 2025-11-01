@@ -1,0 +1,9 @@
+{
+  "name": "Mizore",
+  "short_name": "Mizore",
+  "start_url": "/mizore",
+  "display": "standalone",
+  "background_color": "#0B0F19",
+  "theme_color": "#5B8CFF",
+  "lang": "zh-CN"
+}

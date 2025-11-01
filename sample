@@ -1,0 +1,436 @@
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowRight, Github, Download, Zap, Activity, Layout, Coins, Check } from "lucide-react";
+
+/**
+ * Mizore — Linear-style landing page
+ * Tech: React + Tailwind + Framer Motion + shadcn/ui + Lucide
+ * Accent color: #5B8CFF
+ * Language: 简体中文，尽量简洁
+ *
+ * Debug fix (2025-10-31):
+ * - 修复 JSX 中错误的关闭标签（将 `<\/NavItem>` 更正为 `</NavItem>`），解决 `Expecting Unicode escape sequence` 报错。
+ * - 强化 hexToRgb：加入格式校验与容错（支持 3/6/8 位十六进制），避免非法颜色字符串导致异常。
+ * - 维持既有结构，移除无关残留，确保组件闭合正确。
+ *
+ * Manual test cases（运行后人工核对）：
+ * 1) 页面能正常编译渲染，无控制台语法报错。
+ * 2) 顶部导航包含「特性 / 下载 / FAQ」，右侧按钮可见。
+ * 3) Hero 显示标题 “Mizore” 与副标题 “一个为 Minecraft 打造的客户端。”。
+ * 4) 「特性」区渲染 3 张卡片（更快/更稳/更简）。
+ * 5) 「下载」区与「FAQ」区正常展示，按钮有悬停态。
+ * 7) 「Dev 展示」区位于商店之后（页面最末），显示 3 位开发组成员卡片（含 GitHub 链接）。
+ * 6) 「商店」区位于 FAQ 之后，展示 3 档 Coin 套餐，购买按钮存在并样式正确。
+ 
+ * 8) 页面背景网格与顶部分隔线渲染正确，无布局错位。
+ *
+ * Automated dev tests（控制台断言）：
+ * - hexToRgb: 支持 #5B8CFF / 5B8CFF / #abc / #FF00FF80 / invalid 回退。
+ * - blend: 返回形如 rgb(r, g, b) 的字符串。
+ */
+
+// Accent brand color
+const BRAND = "#5B8CFF";
+
+const fade = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+};
+
+const stagger = {
+  show: {
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+export default function MizoreLinearLanding() {
+  const [loginOpen, setLoginOpen] = useState(false);
+  // 仅在开发环境运行简单断言
+  useEffect(() => {
+    if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
+      runDevTests();
+    }
+  }, []);
+
+  return (
+    <div className="min-h-screen text-white bg-[#0B0F19] selection:bg-white/10 selection:text-white">
+      {/* Background grid + radial glow */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(60% 40% at 50% 0%, rgba(91,140,255,0.18) 0%, rgba(11,15,25,0) 60%)",
+          }}
+        />
+        <svg className="absolute inset-0 h-full w-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="white" strokeWidth="0.5" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+        {/* top accent line */}
+        <div
+          className="absolute left-1/2 top-0 h-px w-[80%] -translate-x-1/2"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${BRAND}, transparent)`,
+          }}
+        />
+      </div>
+
+      {/* Nav */}
+      <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-[#0B0F19]/60">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Logo />
+            <span className="text-sm text-white/60">Minecraft 1.20.1 客户端</span>
+          </div>
+          <nav className="hidden items-center gap-1 md:flex">
+            <NavItem href="#store">商店</NavItem>
+            <NavItem href="#dev">Dev</NavItem>
+            <NavItem href="#features">特性</NavItem>
+            <NavItem href="#download">下载</NavItem>
+            <NavItem href="#faq">FAQ</NavItem>
+          </nav>
+          <div className="flex items-center gap-2">
+            <a href="#github" className="hidden md:block">
+              <Button variant="ghost" className="h-9 rounded-full text-white/80 hover:text-white">
+                <Github className="mr-2 h-4 w-4" /> GitHub
+              </Button>
+            </a>
+            <a href="#download">
+              <Button className="h-9 rounded-full border-0" style={{ backgroundColor: BRAND }}>
+                <Download className="mr-2 h-4 w-4" /> 下载
+              </Button>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <main className="mx-auto w-full max-w-6xl px-4">
+        <motion.section
+          variants={stagger}
+          initial="hidden"
+          animate="show"
+          className="relative mx-auto mt-14 flex flex-col items-center text-center md:mt-24"
+        >
+          <motion.h1
+            variants={fade}
+            className="text-5xl md:text-6xl font-semibold bg-clip-text text-transparent"
+            style={{ backgroundImage: `linear-gradient(180deg, #FFFFFF, rgba(255,255,255,0.72))` }}
+          >
+            Mizore
+          </motion.h1>
+
+          <motion.p variants={fade} className="mt-3 text-base md:text-lg text-white/70">
+            一个为 Minecraft 打造的客户端。
+          </motion.p>
+
+          <motion.div variants={fade} className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a href="#download">
+              <Button
+                className="h-11 rounded-full px-5 text-base font-medium shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
+                style={{ backgroundColor: BRAND }}
+              >
+                立即下载 <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </a>
+            <a href="#docs">
+              <Button
+                variant="ghost"
+                className="h-11 rounded-full px-5 text-base text-white/80 hover:bg-white/10 hover:text-white"
+              >
+                查看文档
+              </Button>
+            </a>
+          </motion.div>
+        </motion.section>
+
+        {/* Dev */}
+                
+
+        <section id="features" className="mx-auto mt-16 grid max-w-6xl grid-cols-1 gap-4 md:mt-24 md:grid-cols-3">
+          {[
+            {
+              title: "更快",
+              desc: "冷启动与资源加载更短，交互延迟显著降低。",
+              icon: <Zap className="h-4 w-4" />,
+            },
+            {
+              title: "更稳",
+              desc: "更平滑的帧率曲线，长时间游玩依然稳定。",
+              icon: <Activity className="h-4 w-4" />,
+            },
+            {
+              title: "更简",
+              desc: "去除不必要的噪点，重要设置触手可及。",
+              icon: <Layout className="h-4 w-4" />,
+            },
+          ].map((item, i) => (
+            <Card key={i} className="rounded-2xl border-white/10 bg-white/5">
+              <CardHeader className="pb-1">
+                <div className="mb-2 flex items-center gap-2 text-sm text-white/80" style={{ color: BRAND }}>
+                  {item.icon}
+                  <span>特色</span>
+                </div>
+                <CardTitle className="text-xl text-white">{item.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-6 text-white/70">{item.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </section>
+
+        {/* Download */}
+        <section id="download" className="mx-auto mt-16 max-w-6xl md:mt-24">
+          <div className="flex flex-col items-center justify-between gap-6 rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-6 text-center md:flex-row md:text-left">
+            <div>
+              <h3 className="text-2xl text-white">立即上手</h3>
+              <p className="mt-2 text-sm text-white/70">下载后即可使用，无需繁琐配置。支持 1.20.1。</p>
+            </div>
+            <div className="flex gap-2">
+              <Button className="h-11 rounded-full px-5" style={{ backgroundColor: BRAND }}>
+                <Download className="mr-2 h-4 w-4" /> 下载安装包
+              </Button>
+              <Button variant="ghost" className="h-11 rounded-full px-5 text-white/80 hover:bg-white/10 hover:text-white">
+                <Github className="mr-2 h-4 w-4" /> GitHub
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section id="faq" className="mx-auto mt-16 max-w-6xl md:mt-24">
+          <h3 className="text-2xl text-white">常见问题</h3>
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <FaqItem q="是否支持 1.20.1?" a="是，面向 1.20.1 版本适配与优化。" />
+            <FaqItem q="是否需要复杂配置？" a="不需要。下载后即可使用，常用选项已预设。" />
+            <FaqItem q="性能如何？" a="启动更快、内存占用更稳，游玩体验更顺滑。" />
+            <FaqItem q="是否开源？" a="可在 GitHub 查看源代码与更新计划。" />
+          </div>
+        </section>
+
+        <section id="store" className="mx-auto mt-16 max-w-6xl md:mt-24">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {[
+              { name: "500 Coin", price: "¥9", features: ["通用消费", "无过期"], cta: "购买 Coin" },
+              { name: "2000 Coin", price: "¥29", features: ["更优单价", "优先更新权益"], cta: "购买 Coin" },
+              { name: "5000 Coin", price: "¥59", features: ["最佳单价", "优先支持"], cta: "购买 Coin" },
+            ].map((p, i) => (
+              <Card key={i} className="rounded-2xl border-white/10 bg-white/5">
+                <CardHeader className="pb-0">
+                  <CardTitle className="text-xl text-white">{p.name}</CardTitle>
+                  <div className="mt-1 text-3xl font-semibold" style={{ color: BRAND }}>{p.price}</div>
+                </CardHeader>
+                <CardContent className="mt-4">
+                  <ul className="space-y-2 text-sm text-white/70">
+                    {p.features.map((f: string, idx: number) => (
+                      <li key={idx} className="flex items-center gap-2">
+                        <Check className="h-4 w-4" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-6">
+                    <Button className="w-full h-10 rounded-full" style={{ backgroundColor: BRAND }}>
+                      <Coins className="mr-2 h-4 w-4" /> {p.cta}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-white/50">* Coin 为示例占位；支付与账户系统后续对接。</p>
+        </section>
+        <section id="dev" className="mx-auto mt-16 max-w-6xl md:mt-24">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
+            <h2 className="text-2xl text-white">开发组</h2>
+            <p className="mt-2 text-sm text-white/70">核心团队与贡献者。</p>
+            <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+              {[
+                { name: "Absurdity", role: "全栈 / Java · Rust · Go", gh: "HuangMiu1337", initials: "A" },
+                { name: "Mizore", role: "产品设计 / 交互", gh: "mizore-design", initials: "M" },
+                { name: "Rei", role: "客户端 / ASM · C++", gh: "rei-dev", initials: "R" },
+              ].map((m, i) => (
+                <Card key={i} className="rounded-2xl border-white/10 bg-[#0F1422]">
+                  <CardHeader className="pb-1">
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5 text-sm" style={{ boxShadow: `inset 0 0 0 1px ${BRAND}40` }}>
+                        {m.initials}
+                      </div>
+                      <div>
+                        <div className="text-base text-white">{m.name}</div>
+                        <div className="text-sm text-white/60">{m.role}</div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <a
+                      className="inline-flex items-center text-sm text-white/80 hover:text-white"
+                      href={`https://github.com/${m.gh}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <Github className="mr-1 h-4 w-4" /> {m.gh}
+                    </a>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <footer className="mx-auto mt-20 max-w-6xl px-4 pb-10 text-xs text-white/50">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+          <div className="mt-4 flex flex-col items-center justify-between gap-2 md:flex-row">
+            <div className="flex items-center gap-2">
+              <Logo small />
+              <span>© {new Date().getFullYear()} Mizore</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <a className="hover:text-white" href="#terms">条款</a>
+              <a className="hover:text-white" href="#privacy">隐私</a>
+              <a className="hover:text-white" href="#changelog">更新日志</a>
+            </div>
+          </div>
+        </footer>
+      </main>
+        <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} />
+    </div>
+  );
+}
+
+function NavItem({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      className="rounded-full px-3 py-1 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+    >
+      {children}
+    </a>
+  );
+}
+
+function Logo({ small = false }: { small?: boolean }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className={"grid place-items-center rounded-xl p-[2px]"}
+        style={{
+          background: `linear-gradient(135deg, ${BRAND}, ${blend(BRAND, "#000000", 0.5)})`,
+        }}
+      >
+        <div className={`${small ? "h-5 w-5" : "h-7 w-7"} rounded-[10px] bg-[#0B0F19]`}>
+          <div className="h-full w-full rounded-[10px]" style={{ boxShadow: `inset 0 0 0 1px ${BRAND}40` }} />
+        </div>
+      </div>
+      <span className={`font-medium ${small ? "text-sm" : "text-base"}`}>Mizore</span>
+    </div>
+  );
+}
+function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50">
+      <div className="w-[90%] max-w-sm rounded-2xl border border-white/10 bg-[#0F1422] p-5">
+        <div className="text-lg font-medium text-white">登录</div>
+        <p className="mt-2 text-sm text-white/70">此为占位弹窗。后续可对接账户与购买记录。</p>
+        <div className="mt-4 flex justify-end">
+          <Button variant="ghost" className="rounded-full" onClick={onClose}>关闭</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  return (
+    <Card className="rounded-2xl border-white/10 bg-white/5">
+      <CardHeader className="pb-1">
+        <CardTitle className="text-base text-white">{q}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm leading-6 text-white/70">{a}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Utility: blend two hex colors
+function blend(hexA: string, hexB: string, t: number) {
+  const a = hexToRgb(hexA);
+  const b = hexToRgb(hexB);
+  const m = {
+    r: Math.round(a.r + (b.r - a.r) * t),
+    g: Math.round(a.g + (b.g - a.g) * t),
+    b: Math.round(a.b + (b.b - a.b) * t),
+  };
+  return `rgb(${m.r}, ${m.g}, ${m.b})`;
+}
+
+function hexToRgb(hex: string) {
+  try {
+    if (!hex) throw new Error("empty");
+    let h = hex.trim();
+    if (h.startsWith("#")) h = h.slice(1);
+
+    // 允许 3/6/8 位；其他视为非法
+    if (h.length === 3) {
+      h = h.split("").map((ch) => ch + ch).join("");
+    }
+
+    if (h.length !== 6 && h.length !== 8) throw new Error("bad length");
+    if (!/^[0-9a-fA-F]{6,8}$/.test(h)) throw new Error("non-hex");
+
+    const bigint = Number.parseInt(h, 16);
+    if (Number.isNaN(bigint)) throw new Error("nan");
+
+    if (h.length === 8) {
+      // 忽略 alpha，仅取 RGB（ARGB 或 RGBA 推断按高位在前处理）
+      const r = (bigint >> 24) & 255;
+      const g = (bigint >> 16) & 255;
+      const b = (bigint >> 8) & 255;
+      return { r, g, b };
+    }
+
+    return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+  } catch {
+    // 回退到品牌色，以保证 UI 不中断
+    return { r: 91, g: 140, b: 255 };
+  }
+}
+
+// ---- Dev-only tiny tests ----
+function runDevTests() {
+  try {
+    const cases = [
+      { input: "#5B8CFF", expect: { r: 91, g: 140, b: 255 } },
+      { input: "5B8CFF", expect: { r: 91, g: 140, b: 255 } },
+      { input: "#abc", expect: { r: 170, g: 187, b: 204 } },
+      { input: "#FF00FF80", expect: { r: 255, g: 0, b: 255 } },
+      { input: "not-a-color", expect: { r: 91, g: 140, b: 255 } },
+    ];
+    cases.forEach((c, i) => {
+      const out = hexToRgb(c.input);
+      const ok = out.r === c.expect.r && out.g === c.expect.g && out.b === c.expect.b;
+      // eslint-disable-next-line no-console
+      console.assert(ok, `hexToRgb case ${i} failed:`, c.input, out, c.expect);
+    });
+
+    const blended = blend("#000000", "#ffffff", 0.5);
+    // eslint-disable-next-line no-console
+    console.assert(/^rgb\(\d+, \d+, \d+\)$/.test(blended), "blend should return rgb() string", blended);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn("Dev tests encountered an error:", e);
+  }
+}
