@@ -54,7 +54,7 @@ export default function MizoreLinearLanding() {
 
   // 导航激活态：根据页面区块可见性高亮对应导航项
   React.useEffect(() => {
-    const ids = ["features", "faq", "community", "dev"];
+    const ids = ["features", "community", "faq", "dev"];
     const elements = ids
       .map((id) => document.getElementById(id))
       .filter((el): el is Element => !!el);
@@ -97,7 +97,7 @@ export default function MizoreLinearLanding() {
   // 关闭商店后，立即根据当前视口重新计算激活态
   React.useEffect(() => {
     if (!storeOpen && !downloadOpen) {
-      const ids = ["features", "faq", "community", "dev"];
+      const ids = ["features", "community", "faq", "dev"];
       const vh = typeof window !== 'undefined' ? window.innerHeight : 0;
       let bestId = "";
       let bestVisible = -1;
@@ -158,8 +158,8 @@ export default function MizoreLinearLanding() {
           <nav className="hidden md:flex items-center justify-center gap-1">
             <NavItem href="#store" onClick={() => setStoreOpen(true)} active={activeSection === "store"}>{t("nav.store")}</NavItem>
             <NavItem href="#features" active={activeSection === "features"}>{t("nav.features")}</NavItem>
-            <NavItem href="#faq" active={activeSection === "faq"}>{t("nav.faq")}</NavItem>
             <NavItem href="#community" active={activeSection === "community"}>{t("nav.community")}</NavItem>
+            <NavItem href="#faq" active={activeSection === "faq"}>{t("nav.faq")}</NavItem>
             <NavItem href="#dev" active={activeSection === "dev"}>{t("nav.dev")}</NavItem>
           </nav>
           {/* Right: actions */}
@@ -299,6 +299,8 @@ export default function MizoreLinearLanding() {
         </motion.section>
 
         {/* Download removed: replaced by right-side drawer */}
+
+        {/* Community moved above; removing duplicate section here */}
 
         {/* FAQ */}
         <motion.section
@@ -586,18 +588,18 @@ function MobileNav({ open, onClose, onOpenStore, active }: { open: boolean; onCl
                 
                 {/* Download removed from mobile menu */}
                 <a
-                  href="#faq"
-                  onClick={onClose} // eslint-disable-line
-                  className={`rounded-xl px-3 py-3 text-base ${active === 'faq' ? 'bg-[var(--hover-bg)] text-[var(--fg-primary)]' : 'text-[var(--fg-primary)] hover:bg-[var(--hover-bg)]'}`}
-                >
-                  {t("nav.faq")}
-                </a>
-                <a
                   href="#community"
                   onClick={onClose} // eslint-disable-line
                   className={`rounded-xl px-3 py-3 text-base ${active === 'community' ? 'bg-[var(--hover-bg)] text-[var(--fg-primary)]' : 'text-[var(--fg-primary)] hover:bg-[var(--hover-bg)]'}`}
                 >
                   {t("nav.community")}
+                </a>
+                <a
+                  href="#faq"
+                  onClick={onClose} // eslint-disable-line
+                  className={`rounded-xl px-3 py-3 text-base ${active === 'faq' ? 'bg-[var(--hover-bg)] text-[var(--fg-primary)]' : 'text-[var(--fg-primary)] hover:bg-[var(--hover-bg)]'}`}
+                >
+                  {t("nav.faq")}
                 </a>
                 <a
                   href="#dev"

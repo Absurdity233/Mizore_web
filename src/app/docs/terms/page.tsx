@@ -1,3 +1,4 @@
+"use client";
 import { ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 
@@ -12,7 +13,7 @@ export default function TermsPage() {
         <Card className="rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)]">
           <CardHeader className="pb-2">
             <CardTitle className="text-3xl font-semibold text-[var(--fg-primary)]">服务条款</CardTitle>
-            <div className="mt-2 text-xs text-[var(--fg-muted)]">更新日期：2024年7月26日</div>
+            <div className="mt-2 text-xs text-[var(--fg-muted)]">更新日期：2025年11月1日</div>
           </CardHeader>
           <CardContent className="space-y-5">
             <section>
