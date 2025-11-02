@@ -36,6 +36,7 @@ const stagger = {
 export default function MizoreLinearLanding() {
   const [loginOpen, setLoginOpen] = React.useState(false);
   const [storeOpen, setStoreOpen] = React.useState(false);
+  const [downloadOpen, setDownloadOpen] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [activeSection, setActiveSection] = React.useState<string>("features");
   const { t } = useLocale();
@@ -53,7 +54,7 @@ export default function MizoreLinearLanding() {
 
   // 导航激活态：根据页面区块可见性高亮对应导航项
   React.useEffect(() => {
-    const ids = ["features", "download", "faq", "dev"];
+    const ids = ["features", "faq", "community", "dev"];
     const elements = ids
       .map((id) => document.getElementById(id))
       .filter((el): el is Element => !!el);
@@ -88,10 +89,15 @@ export default function MizoreLinearLanding() {
     }
   }, [storeOpen]);
 
+  // 下载抽屉打开时不改变导航激活态（已移除下载导航项）
+  React.useEffect(() => {
+    // no-op
+  }, [downloadOpen]);
+
   // 关闭商店后，立即根据当前视口重新计算激活态
   React.useEffect(() => {
-    if (!storeOpen) {
-      const ids = ["features", "download", "faq", "dev"];
+    if (!storeOpen && !downloadOpen) {
+      const ids = ["features", "faq", "community", "dev"];
       const vh = typeof window !== 'undefined' ? window.innerHeight : 0;
       let bestId = "";
       let bestVisible = -1;
@@ -152,19 +158,19 @@ export default function MizoreLinearLanding() {
           <nav className="hidden md:flex items-center justify-center gap-1">
             <NavItem href="#store" onClick={() => setStoreOpen(true)} active={activeSection === "store"}>{t("nav.store")}</NavItem>
             <NavItem href="#features" active={activeSection === "features"}>{t("nav.features")}</NavItem>
-            <NavItem href="#download" active={activeSection === "download"}>{t("nav.download")}</NavItem>
             <NavItem href="#faq" active={activeSection === "faq"}>{t("nav.faq")}</NavItem>
+            <NavItem href="#community" active={activeSection === "community"}>{t("nav.community")}</NavItem>
             <NavItem href="#dev" active={activeSection === "dev"}>{t("nav.dev")}</NavItem>
           </nav>
           {/* Right: actions */}
           <div className="flex items-center justify-end gap-2">
             <ThemeToggle />
             <LocaleToggle />
-            <a href="#download" className="hidden md:inline-flex">
-              <Button variant="primary" className="focus-ring h-9 rounded-full px-3 border-0">
+            <div className="hidden md:inline-flex">
+              <Button variant="primary" className="focus-ring h-9 rounded-full px-3 border-0" onClick={() => setDownloadOpen(true)}>
                 <Download aria-hidden="true" className="mr-2 h-4 w-4" /> {t("nav.download")}
               </Button>
-            </a>
+            </div>
             <Button
               variant="ghost"
               className="focus-ring h-9 rounded-full px-3 md:hidden"
@@ -213,14 +219,13 @@ export default function MizoreLinearLanding() {
 
 
           <motion.div variants={fade} className="relative z-10 mt-6 flex flex-wrap items-center justify-center gap-3">
-            <a href="#download">
-              <Button
-                variant="primary"
-                className="btn-brand-gradient focus-ring h-11 rounded-full px-5 text-base font-medium transition-transform"
-              >
-                {t("cta.download")} <ArrowRight aria-hidden="true" className="ml-2 h-4 w-4" />
-              </Button>
-            </a>
+            <Button
+              onClick={() => setDownloadOpen(true)}
+              variant="primary"
+              className="btn-brand-gradient focus-ring h-11 rounded-full px-5 text-base font-medium transition-transform"
+            >
+              {t("cta.download")} <ArrowRight aria-hidden="true" className="ml-2 h-4 w-4" />
+            </Button>
             <a href="#faq">
               <Button
                 variant="ghost"
@@ -293,30 +298,7 @@ export default function MizoreLinearLanding() {
           ))}
         </motion.section>
 
-        {/* Download */}
-        <motion.section
-          id="download"
-          variants={fade}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.2 }}
-          className="mx-auto mt-20 max-w-6xl md:mt-28 scroll-mt-28"
-        >
-          <div className="flex flex-col items-center justify-between gap-6 rounded-2xl border border-[var(--border-color)] bg-gradient-to-br from-[var(--bg-card)] to-transparent p-6 text-center md:flex-row md:text-left">
-            <div>
-              <h3 className="text-2xl text-[var(--fg-primary)]">{t("download.title")}</h3>
-              <p className="mt-2 text-sm text-[var(--fg-muted)]">{t("download.desc")}</p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="primary" className="btn-brand-gradient focus-ring h-11 rounded-full px-5">
-                <Download aria-hidden="true" className="mr-2 h-4 w-4" /> {t("download.btn.install")}
-              </Button>
-              <Button variant="ghost" className="focus-ring h-11 rounded-full px-5">
-                <Github aria-hidden="true" className="mr-2 h-4 w-4" /> {t("download.btn.github")}
-              </Button>
-            </div>
-          </div>
-        </motion.section>
+        {/* Download removed: replaced by right-side drawer */}
 
         {/* FAQ */}
         <motion.section
@@ -348,6 +330,35 @@ export default function MizoreLinearLanding() {
           </div>
         </motion.section>
 
+        {/* Community & Support */}
+        <motion.section
+          id="community"
+          variants={fade}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          className="mx-auto mt-20 max-w-6xl md:mt-28 scroll-mt-28"
+        >
+          <div className="flex flex-col items-center justify-between gap-6 rounded-2xl border border-[var(--border-color)] bg-gradient-to-br from-[var(--bg-card)] to-transparent p-6 text-center md:flex-row md:text-left">
+            <div>
+              <h3 className="text-2xl text-[var(--fg-primary)]">{t("community.title")}</h3>
+              <p className="mt-2 text-sm text-[var(--fg-muted)]">{t("community.desc")}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <a href="#" target="_blank" rel="noreferrer">
+                <Button variant="primary" className="btn-brand-gradient focus-ring h-11 rounded-full px-5">
+                  <ArrowRight aria-hidden="true" className="mr-2 h-4 w-4" /> {t("community.btn.discord")}
+                </Button>
+              </a>
+              <a href="#" target="_blank" rel="noreferrer">
+                <Button variant="ghost" className="focus-ring h-11 rounded-full px-5">
+                  <ArrowRight aria-hidden="true" className="mr-2 h-4 w-4" /> {t("community.btn.qq")}
+                </Button>
+              </a>
+            </div>
+          </div>
+        </motion.section>
+
         {/* Store: 已改为右侧内嵌窗口抽屉，通过导航打开 */}
 
         {/* Dev */}
@@ -367,7 +378,7 @@ export default function MizoreLinearLanding() {
               <div className="absolute left-0 top-0 bottom-0 z-10 w-16 bg-gradient-to-r from-[var(--bg-card)] to-transparent" />
               {(() => {
                 const members = [
-                  { name: "Absurdity", role: "全栈 / Java · Go", gh: "HuangMiu1337", initials: "A" },
+                  { name: "Absurdity", role: "全栈 / Java · Go", gh: "Absurdity233", initials: "A" },
                   { name: "Limerence", role: "客户端", gh: "Limerence", initials: "L" },
                   { name: "Haohao", role: "客户端", gh: "Haohao", initials: "H" },
                   { name: "Ag²O", role: "客户端", gh: "Ag²O", initials: "A" },
@@ -435,8 +446,8 @@ export default function MizoreLinearLanding() {
             </div>
             <div className="flex items-center gap-4">
               <a className="hover:text-[var(--fg-primary)]" href="/docs">文档</a>
-              <a className="hover:text-[var(--fg-primary)]" href="#terms">条款</a>
-              <a className="hover:text-[var(--fg-primary)]" href="#privacy">隐私</a>
+              <a className="hover:text-[var(--fg-primary)]" href="/docs/terms">条款</a>
+              <a className="hover:text-[var(--fg-primary)]" href="/docs/privacy">隐私</a>
               <a className="hover:text-[var(--fg-primary)]" href="/docs/changelog">更新日志</a>
             </div>
           </div>
@@ -444,6 +455,7 @@ export default function MizoreLinearLanding() {
       </main>
       <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} />
       <StoreWindow open={storeOpen} onClose={() => setStoreOpen(false)} />
+      <DownloadWindow open={downloadOpen} onClose={() => setDownloadOpen(false)} />
     </div>
   );
 }
@@ -572,19 +584,20 @@ function MobileNav({ open, onClose, onOpenStore, active }: { open: boolean; onCl
                   {t("nav.features")}
                 </a>
                 
-                <a
-                  href="#download"
-                  onClick={onClose} // eslint-disable-line
-                  className={`rounded-xl px-3 py-3 text-base ${active === 'download' ? 'bg-[var(--hover-bg)] text-[var(--fg-primary)]' : 'text-[var(--fg-primary)] hover:bg-[var(--hover-bg)]'}`}
-                >
-                  {t("nav.download")}
-                </a>
+                {/* Download removed from mobile menu */}
                 <a
                   href="#faq"
                   onClick={onClose} // eslint-disable-line
                   className={`rounded-xl px-3 py-3 text-base ${active === 'faq' ? 'bg-[var(--hover-bg)] text-[var(--fg-primary)]' : 'text-[var(--fg-primary)] hover:bg-[var(--hover-bg)]'}`}
                 >
                   {t("nav.faq")}
+                </a>
+                <a
+                  href="#community"
+                  onClick={onClose} // eslint-disable-line
+                  className={`rounded-xl px-3 py-3 text-base ${active === 'community' ? 'bg-[var(--hover-bg)] text-[var(--fg-primary)]' : 'text-[var(--fg-primary)] hover:bg-[var(--hover-bg)]'}`}
+                >
+                  {t("nav.community")}
                 </a>
                 <a
                   href="#dev"
@@ -683,9 +696,12 @@ function StoreWindow({ open, onClose }: { open: boolean; onClose: () => void }) 
             <div className="h-full overflow-y-auto p-4">
               <div className="grid grid-cols-1 gap-4">
                 {[
-                  { name: "500 Coin", price: "¥9", features: ["通用消费", "无过期"], cta: "购买 Coin" },
-                  { name: "2000 Coin", price: "¥29", features: ["更优单价", "优先更新权益"], cta: "购买 Coin" },
-                  { name: "5000 Coin", price: "¥59", features: ["最佳单价", "优先支持"], cta: "购买 Coin" },
+                  { name: "100 Coin", price: "¥3", features: ["通用消费", "无过期"], cta: "购买 Coin" },
+                  { name: "250 Coin", price: "¥7", features: ["通用消费", "无过期"], cta: "购买 Coin" },
+                  { name: "500 Coin", price: "¥12", features: ["更优单价", "无过期"], cta: "购买 Coin" },
+                  { name: "1000 Coin", price: "¥23", features: ["更优单价", "优先更新权益"], cta: "购买 Coin" },
+                  { name: "2000 Coin", price: "¥45", features: ["更优单价", "优先更新权益"], cta: "购买 Coin" },
+                  { name: "5000 Coin", price: "¥85", features: ["最佳单价", "优先支持"], cta: "购买 Coin" },
                 ].map((p, i) => (
                   <Card key={i} className="rounded-2xl">
                     <CardHeader className="pb-0">
@@ -709,6 +725,113 @@ function StoreWindow({ open, onClose }: { open: boolean; onClose: () => void }) 
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function DownloadWindow({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useLocale();
+  const panelRef = React.useRef<HTMLDivElement | null>(null);
+  React.useEffect(() => {
+    if (!open) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    const focusables = Array.from(
+      panel.querySelectorAll<HTMLElement>('a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])')
+    ).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1);
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const prevActive = document.activeElement as HTMLElement | null;
+    first?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      } else if (e.key === 'Tab') {
+        if (focusables.length === 0) return;
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last?.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first?.focus();
+          }
+        }
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      prevActive?.focus?.();
+    };
+  }, [open, onClose]);
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            className="fixed inset-0 z-50 bg-black/40"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            aria-hidden="true"
+          />
+          <motion.div
+            id="download-window"
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="download-title"
+            className="fixed right-0 top-0 bottom-0 z-[60] w-[min(92vw,560px)] border-l border-[var(--border-color)] bg-[var(--bg-card)] shadow-xl"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
+              <div className="flex items-center gap-2 text-[var(--fg-primary)]">
+                <Download className="h-4 w-4" />
+                <span id="download-title" className="text-sm">{t("download.title")}</span>
+              </div>
+              <Button variant="ghost" className="rounded-full" onClick={onClose}>
+                <X className="mr-2 h-4 w-4" /> 关闭
+              </Button>
+            </div>
+            <div className="h-full overflow-y-auto p-4">
+              <div className="space-y-4">
+                <p className="text-sm text-[var(--fg-muted)]">{t("download.desc")}</p>
+                <div className="grid grid-cols-1 gap-4">
+                  <Card className="rounded-2xl">
+                    <CardHeader className="pb-0">
+                      <CardTitle className="text-xl text-[var(--fg-primary)]">{t("download.btn.install")}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="mt-4">
+                      <Button variant="primary" className="w-full h-10 rounded-full">
+                        <Download className="mr-2 h-4 w-4" /> {t("download.btn.install")}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  <Card className="rounded-2xl">
+                    <CardHeader className="pb-0">
+                      <CardTitle className="text-xl text-[var(--fg-primary)]">{t("download.btn.github")}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="mt-4">
+                      <Button variant="ghost" className="w-full h-10 rounded-full">
+                        <Github className="mr-2 h-4 w-4" /> {t("download.btn.github")}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </div>
           </motion.div>
