@@ -3,6 +3,7 @@ export default function DocsIndexPage() {
     { href: "/docs/install", label: "安装" },
     { href: "/docs/usage", label: "使用" },
     { href: "/docs/faq", label: "FAQ" },
+    { href: "/docs/forum", label: "论坛" },
     { href: "/docs/changelog", label: "更新日志" },
     { href: "/docs/contribute", label: "贡献指南" },
   ];
@@ -32,7 +33,7 @@ export default function DocsIndexPage() {
         <section className="space-y-6">
           <header>
             <h1 className="text-3xl font-semibold">文档索引</h1>
-            <p className="mt-2 text-sm text-[var(--fg-muted)]">快速导航至安装、使用、FAQ、更新日志与贡献指南。</p>
+            <p className="mt-2 text-sm text-[var(--fg-muted)]">快速导航至安装、使用、FAQ、论坛、更新日志与贡献指南。</p>
           </header>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {nav.map((n) => (

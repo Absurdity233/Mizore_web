@@ -450,6 +450,7 @@ export default function MizoreLinearLanding() {
               <a className="hover:text-[var(--fg-primary)]" href="/docs">文档</a>
               <a className="hover:text-[var(--fg-primary)]" href="/docs/terms">条款</a>
               <a className="hover:text-[var(--fg-primary)]" href="/docs/privacy">隐私</a>
+              <a className="hover:text-[var(--fg-primary)]" href="/docs/forum">论坛</a>
               <a className="hover:text-[var(--fg-primary)]" href="/docs/changelog">更新日志</a>
             </div>
           </div>
