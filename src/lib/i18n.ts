@@ -46,6 +46,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     "community.desc": "加入我们的 Discord 或 QQ 群，获取帮助、反馈问题，与开发组交流。",
     "community.btn.discord": "加入 Discord",
     "community.btn.qq": "加入 QQ 群",
+    "community.btn.forum": "进入论坛",
 
     // FAQ
     "faq.title": "常见问题",
@@ -115,6 +116,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     "community.desc": "Join our Discord or QQ group for help, feedback, and discussion.",
     "community.btn.discord": "Join Discord",
     "community.btn.qq": "Join QQ Group",
+    "community.btn.forum": "Open Forum",
 
     // FAQ
     "faq.title": "FAQ",

@@ -1,3 +1,5 @@
+import GiscusEmbed from "../../../components/GiscusEmbed";
+
 export default function ForumPage() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 text-[var(--fg-primary)]">
@@ -17,6 +19,10 @@ export default function ForumPage() {
           <p className="mt-2">提出新功能与改进建议。</p>
         </section>
       </div>
+
+      {/* Discussions (GitHub Discussions + giscus) */}
+      <GiscusEmbed theme="light" lang="zh-CN" />
+
       <div className="mt-10 text-xs text-[var(--fg-muted)]">
         <a href="/docs" className="hover:text-[var(--fg-primary)]">返回文档索引</a>
       </div>

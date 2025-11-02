@@ -346,12 +346,17 @@ export default function MizoreLinearLanding() {
               <h3 className="text-2xl text-[var(--fg-primary)]">{t("community.title")}</h3>
               <p className="mt-2 text-sm text-[var(--fg-muted)]">{t("community.desc")}</p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <a href="#" target="_blank" rel="noreferrer">
-                <Button variant="primary" className="btn-brand-gradient focus-ring h-11 rounded-full px-5">
-                  <ArrowRight aria-hidden="true" className="mr-2 h-4 w-4" /> {t("community.btn.discord")}
-                </Button>
-              </a>
+          <div className="flex flex-wrap gap-2">
+            <a href="/docs/forum" rel="noreferrer">
+              <Button variant="primary" className="btn-brand-gradient focus-ring h-11 rounded-full px-5">
+                <ArrowRight aria-hidden="true" className="mr-2 h-4 w-4" /> {t("community.btn.forum")}
+              </Button>
+            </a>
+            <a href="#" target="_blank" rel="noreferrer">
+              <Button variant="primary" className="btn-brand-gradient focus-ring h-11 rounded-full px-5">
+                <ArrowRight aria-hidden="true" className="mr-2 h-4 w-4" /> {t("community.btn.discord")}
+              </Button>
+            </a>
               <a href="#" target="_blank" rel="noreferrer">
                 <Button variant="ghost" className="focus-ring h-11 rounded-full px-5">
                   <ArrowRight aria-hidden="true" className="mr-2 h-4 w-4" /> {t("community.btn.qq")}
