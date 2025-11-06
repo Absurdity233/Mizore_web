@@ -36,6 +36,8 @@ const stagger = {
 export default function MizoreLinearLanding() {
   const [loginOpen, setLoginOpen] = React.useState(false);
   const [storeOpen, setStoreOpen] = React.useState(false);
+  const [checkoutOpen, setCheckoutOpen] = React.useState(false);
+  const [checkoutPkg, setCheckoutPkg] = React.useState<{ name: string; amountYuan: number; coins: number } | null>(null);
   const [downloadOpen, setDownloadOpen] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [activeSection, setActiveSection] = React.useState<string>("features");
@@ -461,7 +463,22 @@ export default function MizoreLinearLanding() {
         </footer>
       </main>
       <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} />
-      <StoreWindow open={storeOpen} onClose={() => setStoreOpen(false)} />
+      <StoreWindow
+        open={storeOpen}
+        onClose={() => setStoreOpen(false)}
+        onCheckout={(pkg) => {
+          setCheckoutPkg(pkg);
+          setCheckoutOpen(true);
+        }}
+      />
+      <CheckoutDialog
+        open={checkoutOpen}
+        pkg={checkoutPkg}
+        onClose={() => {
+          setCheckoutOpen(false);
+          setCheckoutPkg(null);
+        }}
+      />
       <DownloadWindow open={downloadOpen} onClose={() => setDownloadOpen(false)} />
     </div>
   );
@@ -628,7 +645,7 @@ function MobileNav({ open, onClose, onOpenStore, active }: { open: boolean; onCl
   );
 }
 
-function StoreWindow({ open, onClose }: { open: boolean; onClose: () => void }) {
+function StoreWindow({ open, onClose, onCheckout }: { open: boolean; onClose: () => void; onCheckout: (pkg: { name: string; amountYuan: number; coins: number }) => void }) {
   const panelRef = React.useRef<HTMLDivElement | null>(null);
   React.useEffect(() => {
     if (!open) return;
@@ -703,17 +720,17 @@ function StoreWindow({ open, onClose }: { open: boolean; onClose: () => void }) 
             <div className="h-full overflow-y-auto p-4">
               <div className="grid grid-cols-1 gap-4">
                 {[
-                  { name: "100 Coin", price: "¥3", features: ["通用消费", "无过期"], cta: "购买 Coin" },
-                  { name: "250 Coin", price: "¥7", features: ["通用消费", "无过期"], cta: "购买 Coin" },
-                  { name: "500 Coin", price: "¥12", features: ["更优单价", "无过期"], cta: "购买 Coin" },
-                  { name: "1000 Coin", price: "¥23", features: ["更优单价", "优先更新权益"], cta: "购买 Coin" },
-                  { name: "2000 Coin", price: "¥45", features: ["更优单价", "优先更新权益"], cta: "购买 Coin" },
-                  { name: "5000 Coin", price: "¥85", features: ["最佳单价", "优先支持"], cta: "购买 Coin" },
+                  { name: "100 Coin", amountYuan: 3, coins: 100, features: ["通用消费", "无过期"], cta: "购买 Coin" },
+                  { name: "250 Coin", amountYuan: 7, coins: 250, features: ["通用消费", "无过期"], cta: "购买 Coin" },
+                  { name: "500 Coin", amountYuan: 12, coins: 500, features: ["更优单价", "无过期"], cta: "购买 Coin" },
+                  { name: "1000 Coin", amountYuan: 23, coins: 1000, features: ["更优单价", "优先更新权益"], cta: "购买 Coin" },
+                  { name: "2000 Coin", amountYuan: 45, coins: 2000, features: ["更优单价", "优先更新权益"], cta: "购买 Coin" },
+                  { name: "5000 Coin", amountYuan: 85, coins: 5000, features: ["最佳单价", "优先支持"], cta: "购买 Coin" },
                 ].map((p, i) => (
                   <Card key={i} className="rounded-2xl">
                     <CardHeader className="pb-0">
                       <CardTitle className="text-xl text-[var(--fg-primary)]">{p.name}</CardTitle>
-                      <div className="mt-1 text-3xl font-semibold" style={{ color: BRAND }}>{p.price}</div>
+                      <div className="mt-1 text-3xl font-semibold" style={{ color: BRAND }}>¥{p.amountYuan}</div>
                     </CardHeader>
                     <CardContent className="mt-4">
                       <ul className="space-y-2 text-sm text-[var(--fg-muted)]">
@@ -725,7 +742,7 @@ function StoreWindow({ open, onClose }: { open: boolean; onClose: () => void }) 
                         ))}
                       </ul>
                       <div className="mt-6">
-                        <Button variant="primary" className="w-full h-10 rounded-full">
+                        <Button variant="primary" className="w-full h-10 rounded-full" onClick={() => onCheckout({ name: p.name, amountYuan: p.amountYuan, coins: p.coins })}>
                           <Coins className="mr-2 h-4 w-4" /> {p.cta}
                         </Button>
                       </div>
@@ -734,6 +751,76 @@ function StoreWindow({ open, onClose }: { open: boolean; onClose: () => void }) 
                 ))}
               </div>
             </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function CheckoutDialog({ open, pkg, onClose }: { open: boolean; pkg: { name: string; amountYuan: number; coins: number } | null; onClose: () => void }) {
+  const [loading, setLoading] = React.useState<"alipay" | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const createOrderId = () => {
+    const ts = Date.now();
+    const rand = Math.floor(Math.random() * 1000).toString().padStart(3, "0");
+    const coins = pkg?.coins || 0;
+    return `COIN-${coins}-${ts}-${rand}`;
+  };
+
+  const handleAlipay = async () => {
+    if (!pkg) return;
+    setError(null);
+    setLoading("alipay");
+    try {
+      const orderId = createOrderId();
+      const res = await fetch("/api/pay/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ method: "alipay", orderId, amount: pkg.amountYuan, subject: `${pkg.name} 购买`, description: `购买 ${pkg.coins} Coin` }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "下单失败");
+      const w = window.open("about:blank", "_blank");
+      if (w) {
+        w.document.open();
+        w.document.write(data.formHtml || "<p>无法打开支付宝支付页面</p>");
+        w.document.close();
+      }
+      onClose();
+    } catch (e: any) {
+      setError(e?.message || "下单失败");
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  // 微信支付暂时禁用，仅保留支付宝流程
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div className="fixed inset-0 z-50 bg-black/40" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} aria-hidden="true" />
+          <motion.div className="fixed left-1/2 top-1/2 z-[60] w-[min(92vw,560px)] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-4 shadow-xl" initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}>
+            <div className="flex items-center justify-between">
+              <div className="text-[var(--fg-primary)]">
+                <div className="text-sm">购买 {pkg?.name}</div>
+                <div className="mt-1 text-xl font-semibold" style={{ color: BRAND }}>¥{pkg?.amountYuan}</div>
+              </div>
+              <Button variant="ghost" className="rounded-full" onClick={onClose}><X className="mr-2 h-4 w-4" /> 关闭</Button>
+            </div>
+
+            <div className="mt-4">
+              <Button variant="primary" className="h-11 w-full rounded-full" disabled={loading === "alipay"} onClick={handleAlipay}>
+                {loading === "alipay" ? "正在跳转支付宝…" : "使用支付宝支付"}
+              </Button>
+            </div>
+
+            {/* 微信支付暂时移除，仅支持支付宝 */}
+
+            {error && <div className="mt-3 text-sm text-red-500">{error}</div>}
           </motion.div>
         </>
       )}
